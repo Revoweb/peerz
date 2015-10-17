@@ -1,1 +1,6 @@
 # PeerzJS
+
+```
+npm install
+grunt
+```

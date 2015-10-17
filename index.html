@@ -1,0 +1,75 @@
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Revoweb</title>
+	<script type="text/javascript" src="node_modules/webrtc-adapter-test/adapter.js"></script>
+</head>
+<body>
+	<h3>webRTC DataChannel Test</h3>
+	
+	<script>
+		var localConnection = new RTCPeerConnection(null, null),
+			sendDataChannel = localConnection.createDataChannel('sendDataChannel');
+
+		sendDataChannel.binaryType = 'arraybuffer';
+
+		localConnection.onicecandidate = function(event) {
+			if(event.candidate) {
+				console.log("local candidate: " + event.candidate.candidate);
+				remoteConnection.addIceCandidate(event.candidate);
+			}
+		};
+		sendDataChannel.onopen = function() {
+			var readyState = sendDataChannel.readyState;
+			console.log('send channel state: ' + readyState);
+		};
+		sendDataChannel.onclose = function() {
+			var readyState = sendDataChannel.readyState;
+			console.log('send channel state: ' + readyState);
+		};
+
+		/********/
+
+		var remoteConnection = new RTCPeerConnection(null, null);
+		var receiveDataChannel;
+
+		remoteConnection.onicecandidate = function(event) {
+			if(event.candidate) {
+				console.log("remote candidate: " + event.candidate.candidate);
+				localConnection.addIceCandidate(event.candidate);
+			}
+		};
+		remoteConnection.ondatachannel = function(event) {
+			receiveDataChannel = event.channel;
+
+			receiveDataChannel.onopen = function() {
+				var readyState = receiveDataChannel.readyState;
+				console.log('receive channel state: ' + readyState);
+			};
+			receiveDataChannel.onclose = function() {
+				var readyState = receiveDataChannel.readyState;
+				console.log('receive channel state: ' + readyState);
+			};
+			receiveDataChannel.onmessage = function(event) {
+				console.log("data received: " + event.data);
+			};
+		};
+
+		/********/
+
+		localConnection.createOffer(function(description) {
+			localConnection.setLocalDescription(description);
+			remoteConnection.setRemoteDescription(description);
+			remoteConnection.createAnswer(function(description) {
+				localConnection.setRemoteDescription(description);
+				remoteConnection.setLocalDescription(description);
+			});
+		});
+
+		setTimeout(function() {
+			sendDataChannel.send('blibloblu');
+		}, 1000);
+
+	</script>
+</body>
+</html>

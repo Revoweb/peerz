@@ -1,0 +1,16 @@
+{
+  "strict": true,
+  "undef": false,
+  "unused": true,
+  "globals": [
+  	"RTCPeerConnection"
+  ],
+  "exported": [
+  	"DataConnection",
+  	"Peer"
+  ],
+  "browser": true,
+  "devel": true,
+  "browserify": true,
+  "jasmine": true
+}
